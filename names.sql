@@ -2,12 +2,6 @@
 ## SQL Names
 
 Save a script containing the query you used to answer each question.
-
-18. Find all names that made their first appearance in the 2010s.
-
-19. Find the names that have not be used the longest.
-
-20. Come up with a question that you would like to answer using this dataset. Then write a query to answer this question.
 */
 
 /*
@@ -84,7 +78,7 @@ FROM names
 GROUP BY name, gender
 ORDER BY SUM(num_registered) DESC
 LIMIT 10;
-/* is there a way to show just top M and top F names? */
+-- is there a way to show just top M and top F names? */
 
 /*
 9. What are the most popular boy and girl names of the first decade of the 2000s (2000 - 2009)?
@@ -161,7 +155,16 @@ SELECT name, COUNT(DISTINCT year)
 FROM names
 GROUP BY name
 HAVING COUNT(DISTINCT year) = 139;
-/* is there a way to do this in one query? */
+
+-- is there a way to do this in one query?
+-- YES! see below:
+
+SELECT name, COUNT(DISTINCT year)
+FROM names
+GROUP BY name
+HAVING COUNT(DISTINCT year) = (
+	SELECT COUNT(DISTINCT year)
+	FROM names);
 
 /*
 16. Find all names that have only appeared in one year.
@@ -178,8 +181,34 @@ HAVING COUNT(DISTINCT year) = 1;
 
 SELECT DISTINCT name
 FROM names
-WHERE year BETWEEN 1950 AND 1959; 
+WHERE year BETWEEN 1950 AND 1959 AND name NOT IN (
+	SELECT DISTINCT name
+	FROM names
+	WHERE year BETWEEN 1818 AND 1949 OR year BETWEEN 1960 AND 2018
+); 
+
+/*
+18. Find all names that made their first appearance in the 2010s.
+*/
 
 SELECT DISTINCT name
 FROM names
-WHERE year NOT BETWEEN 1950 AND 1959;
+WHERE year >= 2010 AND name NOT IN (
+	SELECT DISTINCT name
+	FROM names
+	WHERE year <= 2009
+);
+
+/*
+19. Find the names that have not be used the longest.
+*/
+
+SELECT name, MAX(year)
+FROM names
+GROUP BY name
+ORDER BY MAX(year)
+LIMIT 10;
+
+/*
+20. Come up with a question that you would like to answer using this dataset. Then write a query to answer this question.
+*/
